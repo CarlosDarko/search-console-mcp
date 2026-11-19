@@ -47,7 +47,7 @@ En esa dirección aparece un asistente con los enlaces directos a Google y la UR
 
 1. **Activar la API de Search Console** (botón **Habilitar**). Si no tienes proyecto en Google Cloud, te pide crear uno.
 2. **Configurar Google Auth Platform** (botón **Comenzar**): nombre de la app y correo, público **Usuarios externos**, correo de contacto y aceptar la política.
-3. **Revisar Desarrollo de la marca**: que estén el correo de asistencia y el de contacto del desarrollador, y **Guardar**. Sin esto, Google no deja publicar.
+3. **Completar Desarrollo de la marca**: página principal (la dirección del conector), política de privacidad (la dirección del conector terminada en `/privacidad`, que el propio conector publica) y dominio autorizado. El asistente te da los tres valores listos para copiar. Sin esto, Google no deja publicar.
 4. **Publicar la app** en **Público** (botón **Publicar app**), para que pase de 'Prueba' a 'En producción'. En 'Prueba' solo entran usuarios de prueba y el acceso caduca a los 7 días.
 5. **Crear el cliente** de tipo **Aplicación web**, pegando en **URIs de redireccionamiento autorizados** la dirección que te da el asistente.
 6. **Pegar el ID y el secreto** en el asistente y entrar con Google. Esa cuenta queda como administradora.
