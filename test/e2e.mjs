@@ -162,6 +162,8 @@ async function run() {
   assert.match(html, /Continuar con Google/);
   assert.match(html, /claude\.ai/);
   assert.equal(res.headers.get('x-frame-options'), 'DENY');
+  // form-action bloquearía en el navegador la redirección final a Claude (el botón «no hace nada»).
+  for (const csp of (res.headers.get('content-security-policy') || '').split(',')) assert.doesNotMatch(csp, /form-action/);
 
   step('un formulario falso sin la cookie del navegador se rechaza');
   const forged = await fetch(`${ORIGIN}/authorize`, { method: 'POST', redirect: 'manual', body: new URLSearchParams({ handle: handleOf(html), decision: 'approve' }) });
