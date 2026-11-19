@@ -1,0 +1,30 @@
+{
+  "name": "search-console-mcp",
+  "version": "1.0.0",
+  "description": "Conector MCP de Google Search Console para Claude, con varias cuentas de Google, en Cloudflare Workers.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "check": "tsc -p .",
+    "test": "tsc -p . && node test/e2e.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CarlosDarko/search-console-mcp.git"
+  },
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/CarlosDarko/search-console-mcp/issues"
+  },
+  "homepage": "https://github.com/CarlosDarko/search-console-mcp#readme",
+  "dependencies": {
+    "@cloudflare/workers-oauth-provider": "^1.2.4"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261119.1",
+    "typescript": "^7.0.2",
+    "wrangler": "^4.165.0"
+  },
+  "private": true,
+  "type": "module"
+}

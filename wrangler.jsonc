@@ -1,0 +1,14 @@
+{
+  // Conector MCP de Google Search Console para Claude (varias cuentas de Google por persona).
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "search-console-mcp",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "workers_dev": true,
+  "observability": { "enabled": true },
+  // Sin «id»: Cloudflare crea el espacio KV en el primer despliegue y lo reutiliza después.
+  "kv_namespaces": [{ "binding": "OAUTH_KV" }]
+  // No hacen falta secretos: el asistente de la página de inicio guarda la configuración en KV.
+  // Opcional: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET y ALLOWED_EMAILS como secretos, y mandan ellos.
+}
