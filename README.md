@@ -24,9 +24,15 @@ Son tres pasos, y no hay que configurar nada a mano en Cloudflare.
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/CarlosDarko/search-console-mcp)
 
+Consejo: abre el botón con **Ctrl+clic** (o **Cmd+clic** en Mac) para no perder esta guía. GitHub no deja que se abra solo en otra pestaña.
+
 1. Pulsa el botón **Deploy to Cloudflare** de aquí arriba. Si no tienes cuenta en Cloudflare, créala, es gratuita.
-2. Conecta tu cuenta de GitHub o GitLab (vale una gratuita). Cloudflare crea ahí una copia de este repositorio y la publica, con su espacio de datos incluido.
-3. Deja todo como viene y confirma el despliegue.
+2. En **Configura tu aplicación**:
+   - **Cuenta Git:** pulsa **Nueva conexión GitHub** (o GitLab) y autoriza. Cloudflare creará ahí tu copia del repositorio. Vale una cuenta gratuita.
+   - **Crear repositorio Git privado:** márcalo si no quieres que tu copia sea pública. Funciona igual de las dos formas.
+   - **Nombre del proyecto:** deja `search-console-mcp`.
+   - **Espacio de nombres KV:** deja **+ Crear nuevo** y, en el nombre, escribe `search-console-mcp`.
+3. Pulsa **Implementar**.
 4. Al terminar, Cloudflare te muestra la dirección del conector. Ábrela.
 
 Si prefieres hacerlo sin el botón, en el panel de Cloudflare ve a **Desarrollo > Cómputo > Workers y Pages**, crea una aplicación eligiendo importar un repositorio y selecciona este (o tu copia).
