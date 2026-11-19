@@ -89,6 +89,11 @@ const step = (t) => console.log('·', t);
 // --------------------------------------------------------------- recorrido
 
 async function run() {
+  step('el código no usa KV.list (el plan gratuito solo da 1.000 listados al día)');
+  for (const f of fs.readdirSync('src')) {
+    assert.doesNotMatch(fs.readFileSync(path.join('src', f), 'utf8'), /OAUTH_KV\.list\(/, `src/${f} usa OAUTH_KV.list`);
+  }
+
   step('descubrimiento OAuth y 401 sin token');
   const unauth = await fetch(`${ORIGIN}/mcp`, { method: 'POST', body: '{}' });
   assert.equal(unauth.status, 401);

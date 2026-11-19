@@ -83,6 +83,10 @@ Para empezar de cero con el asistente, borra la clave `gsc:config` del espacio K
 - La página de conexión no se puede incrustar en otra web y sus formularios van ligados al navegador (protección contra 'confused deputy').
 - Al quitar una cuenta, también se revoca su acceso en Google.
 
+## Límites del plan gratuito de Cloudflare
+
+Cada consulta de Claude son unas pocas lecturas de KV y ninguna escritura salvo al conectar cuentas o renovar la lista de propiedades (cada 10 minutos). El código no usa listados de KV, que en el plan gratuito son solo 1.000 al día. Con el plan gratuito (100.000 peticiones y 100.000 lecturas al día) hay margen de sobra para una persona y para un grupo pequeño.
+
 ## Desarrollo
 
 ```bash

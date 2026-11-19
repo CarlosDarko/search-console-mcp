@@ -12,10 +12,11 @@ const GSC_SCOPE = 'https://www.googleapis.com/auth/webmasters.readonly';
 
 // Cada persona que usa el conector («titular») tiene sus cuentas de Google, separadas de las demás.
 //   gsc:owner:<sub de Google>          → id del titular al que pertenece esa cuenta de Google
-//   gsc:u:<titular>:acc:<sub>          → la cuenta (con su token cifrado)
+//   gsc:u:<titular>:accounts           → sus cuentas (con los tokens cifrados), en una sola clave
 //   gsc:u:<titular>:props              → lista de propiedades (caché de 10 minutos)
+// Todo se lee con get, nunca con list: el plan gratuito de KV da solo 1.000 listados al día.
 const OWNER_PREFIX = 'gsc:owner:';
-const accountPrefix = (owner: string) => `gsc:u:${owner}:acc:`;
+const accountsKey = (owner: string) => `gsc:u:${owner}:accounts`;
 const propertiesKey = (owner: string) => `gsc:u:${owner}:props`;
 const PROPERTIES_TTL = 600;
 
@@ -140,17 +141,13 @@ export async function exchangeCode(env: Env, origin: string, code: string, verif
 // ---------------------------------------------------------------- Cuentas guardadas
 
 export async function listAccounts(env: Env, owner: string): Promise<StoredAccount[]> {
-  const out: StoredAccount[] = [];
-  let cursor: string | undefined;
-  do {
-    const page = await env.OAUTH_KV.list({ prefix: accountPrefix(owner), cursor });
-    for (const key of page.keys) {
-      const acc = await env.OAUTH_KV.get<StoredAccount>(key.name, 'json');
-      if (acc) out.push(acc);
-    }
-    cursor = page.list_complete ? undefined : page.cursor;
-  } while (cursor);
-  return out.sort((a, b) => a.addedAt.localeCompare(b.addedAt));
+  return (await env.OAUTH_KV.get<StoredAccount[]>(accountsKey(owner), 'json')) || [];
+}
+
+async function writeAccounts(env: Env, owner: string, accounts: StoredAccount[]) {
+  const sorted = [...accounts].sort((a, b) => a.addedAt.localeCompare(b.addedAt));
+  if (sorted.length) await env.OAUTH_KV.put(accountsKey(owner), JSON.stringify(sorted));
+  else await env.OAUTH_KV.delete(accountsKey(owner));
 }
 
 export async function saveAccount(env: Env, owner: string, sub: string, email: string, refreshToken: string | undefined) {
@@ -158,7 +155,8 @@ export async function saveAccount(env: Env, owner: string, sub: string, email: s
   if (current && current !== owner) {
     throw new GoogleError(`La cuenta ${email} ya está conectada por otra persona en este conector.`, 409);
   }
-  const existing = await env.OAUTH_KV.get<StoredAccount>(accountPrefix(owner) + sub, 'json');
+  const accounts = await listAccounts(env, owner);
+  const existing = accounts.find((a) => a.sub === sub);
   let refresh = existing?.refresh;
   if (refreshToken) refresh = await encrypt(env.GOOGLE_CLIENT_SECRET, refreshToken);
   if (!refresh) {
@@ -175,14 +173,15 @@ export async function saveAccount(env: Env, owner: string, sub: string, email: s
     addedAt: existing?.addedAt || new Date().toISOString(),
     status: 'ok',
   };
-  await env.OAUTH_KV.put(accountPrefix(owner) + sub, JSON.stringify(account));
-  await env.OAUTH_KV.put(OWNER_PREFIX + sub, owner);
+  await writeAccounts(env, owner, [...accounts.filter((a) => a.sub !== sub), account]);
+  if (current !== owner) await env.OAUTH_KV.put(OWNER_PREFIX + sub, owner);
   accessTokens.delete(sub);
   await env.OAUTH_KV.delete(propertiesKey(owner));
 }
 
 export async function removeAccount(env: Env, owner: string, sub: string) {
-  const acc = await env.OAUTH_KV.get<StoredAccount>(accountPrefix(owner) + sub, 'json');
+  const accounts = await listAccounts(env, owner);
+  const acc = accounts.find((a) => a.sub === sub);
   if (!acc) return;
   {
     // Revoca el token en Google (si falla, se borra igualmente).
@@ -197,7 +196,7 @@ export async function removeAccount(env: Env, owner: string, sub: string) {
       /* sin importancia */
     }
   }
-  await env.OAUTH_KV.delete(accountPrefix(owner) + sub);
+  await writeAccounts(env, owner, accounts.filter((a) => a.sub !== sub));
   await env.OAUTH_KV.delete(OWNER_PREFIX + sub);
   accessTokens.delete(sub);
   await env.OAUTH_KV.delete(propertiesKey(owner));
@@ -227,7 +226,8 @@ async function accessToken(env: Env, acc: StoredAccount): Promise<string> {
   if (!res.ok || !token.access_token) {
     if (token.error === 'invalid_grant') {
       const marked: StoredAccount = { ...acc, status: 'revoked', error: token.error_description || token.error };
-      await env.OAUTH_KV.put(accountPrefix(acc.owner) + acc.sub, JSON.stringify(marked));
+      const all = await listAccounts(env, acc.owner);
+      await writeAccounts(env, acc.owner, all.map((a) => (a.sub === acc.sub ? marked : a)));
       await env.OAUTH_KV.delete(propertiesKey(acc.owner));
       throw new GoogleError(
         `Google retiró el acceso de la cuenta ${acc.email}. Vuelve a añadirla (desconecta y conecta el conector en Claude).`,
