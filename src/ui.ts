@@ -39,6 +39,7 @@ a{color:var(--accent)}
 .copy{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.9rem;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:8px 0;overflow-wrap:anywhere;user-select:all}
 ol.steps{list-style:none;padding:0;margin:20px 0 0}ol.steps>li{display:flex;align-items:flex-start;justify-content:flex-start;gap:12px;margin:0 0 18px;padding:0;border:0}
 .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--card);display:grid;place-items:center;font-size:.85rem;font-weight:600}
+ul.sub{margin:8px 0 0;padding-left:18px;border:0;list-style:disc;border-radius:0}ul.sub>li{display:list-item;margin:0 0 4px;padding:0;border:0}
 .stack{display:grid;gap:10px;margin-top:10px}label{display:grid;gap:4px;font-size:.92rem}
 input,textarea{font:inherit;width:100%;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text)}
 </style></head><body><main>${body}</main></body></html>`,

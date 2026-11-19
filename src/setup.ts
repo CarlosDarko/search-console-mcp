@@ -42,20 +42,21 @@ function wizard(origin: string, error?: string, clientId = ''): Response {
   return page(
     'Configurar Search Console para Claude',
     `<h1>Configurar el conector</h1>
-<p>Google pide que cada conector tenga su propia 'llave' (un cliente OAuth). Se crea una sola vez y tarda unos 5 minutos. Abre cada enlace con la cuenta de Google que quieras usar como administradora.</p>
+<p>Google pide que cada conector tenga su propia 'llave' (un cliente OAuth). Se crea una sola vez, en unos 5 minutos, siguiendo estos pasos en orden. Abre cada enlace con la cuenta de Google que quieras usar como administradora.</p>
 ${error ? `<p class="note warn">${esc(error)}</p>` : ''}
 <ol class="steps">
-${step(1, `<a href="https://console.cloud.google.com/apis/library/searchconsole.googleapis.com" target="_blank" rel="noopener">Activa la API de Search Console</a> y pulsa <strong>Habilitar</strong>. Si te pide un proyecto, crea uno con cualquier nombre.`)}
-${step(2, `<a href="https://console.cloud.google.com/auth/overview" target="_blank" rel="noopener">Configura la pantalla de acceso</a>: pulsa <strong>Comenzar</strong>, pon un nombre (por ejemplo, <em>Search Console para Claude</em>) y tu correo, en Público elige <strong>Usuarios externos</strong>, acepta y pulsa <strong>Crear</strong>.`)}
-${step(3, `<a href="https://console.cloud.google.com/auth/audience" target="_blank" rel="noopener">Publica la app</a>: pulsa <strong>Publicar aplicación</strong> y confirma. Si te lo saltas, Google corta el acceso cada 7 días.`)}
-${step(4, `<a href="https://console.cloud.google.com/auth/clients/create" target="_blank" rel="noopener">Crea el cliente</a>: tipo <strong>Aplicación web</strong>. En <strong>URI de redireccionamiento autorizados</strong> pulsa <strong>Añadir URI</strong> y pega exactamente esto:<p class="copy">${esc(redirect)}</p>Pulsa <strong>Crear</strong>.`)}
-${step(5, `Copia el <strong>ID de cliente</strong> y el <strong>Secreto del cliente</strong> que te muestra Google y pégalos aquí:
+${step(1, `<a href="https://console.cloud.google.com/apis/library/searchconsole.googleapis.com" target="_blank" rel="noopener">Abre la API de Search Console</a> y pulsa <strong>Habilitar</strong>. Si Google te pide antes un proyecto, crea uno con cualquier nombre (por ejemplo, <em>search-console-claude</em>) y vuelve a este enlace.`)}
+${step(2, `<a href="https://console.cloud.google.com/auth/overview" target="_blank" rel="noopener">Abre Google Auth Platform</a> y pulsa <strong>Comenzar</strong>. Se abre un formulario de cuatro partes:<ul class="sub"><li><strong>Información de la app</strong>: nombre <em>Search Console para Claude</em> y, como correo de asistencia, el tuyo. <strong>Siguiente</strong>.</li><li><strong>Público</strong>: <strong>Usuarios externos</strong>. <strong>Siguiente</strong>.</li><li><strong>Información de contacto</strong>: tu correo. <strong>Siguiente</strong>.</li><li><strong>Finalizar</strong>: acepta la política de datos de usuario, <strong>Continuar</strong> y <strong>Crear</strong>.</li></ul>`)}
+${step(3, `<a href="https://console.cloud.google.com/auth/branding" target="_blank" rel="noopener">Abre Desarrollo de la marca</a> y comprueba que llevan tu correo los campos <strong>Correo de asistencia al usuario</strong> y, abajo del todo, <strong>Información de contacto del desarrollador</strong>. Deja vacíos el logotipo, los enlaces y los dominios. Pulsa <strong>Guardar</strong>. Sin esto, Google no deja publicar la app.`)}
+${step(4, `<a href="https://console.cloud.google.com/auth/audience" target="_blank" rel="noopener">Abre Público</a>, pulsa <strong>Publicar app</strong> y confirma. El estado debe pasar de <em>Prueba</em> a <em>En producción</em>. No te lo saltes: en <em>Prueba</em> Google solo deja entrar a usuarios de prueba y corta el acceso a los 7 días.`)}
+${step(5, `<a href="https://console.cloud.google.com/auth/clients/create" target="_blank" rel="noopener">Crea el cliente</a>: en <strong>Tipo de aplicación</strong> elige <strong>Aplicación web</strong> (el nombre da igual). En <strong>URIs de redireccionamiento autorizados</strong> añade una URI y pega exactamente esto:<p class="copy">${esc(redirect)}</p>Pulsa <strong>Crear</strong>. Google te mostrará el <strong>ID de cliente</strong> y el <strong>Secreto del cliente</strong>: déjalos a la vista, son para el paso siguiente.`)}
+${step(6, `Copia el <strong>ID de cliente</strong> y el <strong>Secreto del cliente</strong> y pégalos aquí:
 <form method="post" action="/setup" class="stack">
 <label>ID de cliente<input name="client_id" required autocomplete="off" spellcheck="false" value="${esc(clientId)}" placeholder="123-abc.apps.googleusercontent.com"></label>
 <label>Secreto del cliente<input name="client_secret" required autocomplete="off" spellcheck="false" type="password" placeholder="GOCSPX-…"></label>
 <div class="row"><button class="primary">Guardar y comprobar con Google</button></div>
 </form>
-<p class="muted">Te pedirá entrar con Google. Esa cuenta quedará como administradora. Google avisará de que la app no está verificada, porque es tuya: pulsa <strong>Configuración avanzada</strong> y luego <strong>Ir a</strong> (el nombre de tu app).</p>`)}
+<p class="muted">Te pedirá entrar con Google. Esa cuenta quedará como administradora. Google avisará de que <em>no ha verificado esta app</em>, porque es tuya y nueva: pulsa <strong>Configuración avanzada</strong>, luego <strong>Ir a Search Console para Claude (no seguro)</strong> y después <strong>Continuar</strong>. Si aparece una casilla para ver tus datos de Search Console, márcala.</p>`)}
 </ol>`,
     error ? 400 : 200,
   );
