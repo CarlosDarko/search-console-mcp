@@ -24,10 +24,14 @@ Son tres pasos, y no hay que configurar nada a mano en Cloudflare.
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/CarlosDarko/search-console-mcp)
 
-1. Pulsa el botón **Deploy to Cloudflare**. Si no tienes cuenta en Cloudflare, créala, es gratuita.
-2. Conecta tu cuenta de GitHub o GitLab (también vale una gratuita). Cloudflare crea ahí una copia de este repositorio y la publica, con su espacio de datos incluido.
-3. Deja todo como viene y pulsa **Crear y desplegar**.
-4. Al terminar, abre la dirección que te da, del tipo `https://search-console-mcp.TU-USUARIO.workers.dev`.
+1. Pulsa el botón **Deploy to Cloudflare** de aquí arriba. Si no tienes cuenta en Cloudflare, créala, es gratuita.
+2. Conecta tu cuenta de GitHub o GitLab (vale una gratuita). Cloudflare crea ahí una copia de este repositorio y la publica, con su espacio de datos incluido.
+3. Deja todo como viene y confirma el despliegue.
+4. Al terminar, Cloudflare te muestra la dirección del conector. Ábrela.
+
+Si prefieres hacerlo sin el botón, en el panel de Cloudflare ve a **Desarrollo > Cómputo > Workers y Pages**, crea una aplicación eligiendo importar un repositorio y selecciona este (o tu copia).
+
+**¿Cuál es mi dirección?** Es `https://search-console-mcp.` seguido de tu subdominio de Workers. Por ejemplo, si tu subdominio es `ana.workers.dev`, la dirección es `https://search-console-mcp.ana.workers.dev`. Si no la apuntaste, en **Desarrollo > Cómputo > Workers y Pages** entra en `search-console-mcp`: la dirección aparece en su página. Tu subdominio también se ve en la columna derecha de **Workers y Pages**. Si es tu primer Worker, Cloudflare puede pedirte que lo elijas: pon el que quieras.
 
 Cada cambio que llegue a tu copia del repositorio se publica solo.
 
@@ -43,7 +47,7 @@ En esa dirección aparece un asistente con los enlaces directos a Google y la UR
 
 ### 3. Añadirlo a Claude (1 minuto)
 
-1. En claude.ai, ve a **Ajustes > Conectores > Añadir conector personalizado**, con la dirección terminada en `/mcp` (el asistente te la muestra).
+1. Abre [claude.ai/customize/connectors](https://claude.ai/customize/connectors) (en el menú de claude.ai, **Personalizar > Conectores**) y añade un **conector personalizado**. Nombre: `Search Console`. URL: la dirección del conector terminada en `/mcp` (el asistente te la muestra).
 2. Pulsa **Conectar** y entra con una de tus cuentas de Google. Google avisará de que la app no está verificada, porque es tuya: pulsa **Configuración avanzada > Ir a…** y marca la casilla de Search Console.
 3. Pulsa **Añadir otra cuenta de Google** por cada cuenta que quieras sumar y, al acabar, **Terminar y volver a Claude**.
 
@@ -80,9 +84,9 @@ Antes de abrirlo a mucha gente, ten en cuenta dos cosas:
 
 ## Configuración avanzada
 
-Si prefieres no usar el asistente, puedes definir en Cloudflare (el Worker > Ajustes > Variables y secretos, tipo **Secreto**) `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` y `ALLOWED_EMAILS`. Si existen, mandan ellas y el asistente no aparece.
+Si prefieres no usar el asistente, puedes definir en Cloudflare, en la configuración del Worker `search-console-mcp`, apartado de variables y secretos (tipo **Secreto**), `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` y `ALLOWED_EMAILS`. Si existen, mandan ellas y el asistente no aparece.
 
-Para empezar de cero con el asistente, borra la clave `gsc:config` del espacio KV del Worker (Almacenamiento > KV).
+Para empezar de cero con el asistente, borra la clave `gsc:config` del espacio KV del Worker (en el panel de Cloudflare, apartado **KV**).
 
 ## Seguridad
 

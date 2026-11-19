@@ -29,7 +29,7 @@ function readyPage(origin: string, admin?: string, intro?: string): Response {
     'Search Console para Claude',
     `<h1>Search Console para Claude</h1>
 ${intro ? `<p class="note">${esc(intro)}</p>` : ''}
-<p>Para usarlo, añádelo en Claude: <strong>Ajustes > Conectores > Añadir conector personalizado</strong>, con esta dirección:</p>
+<p>Para usarlo, abre <a href="https://claude.ai/customize/connectors" target="_blank" rel="noopener">los conectores de Claude</a> (<strong>Personalizar > Conectores</strong>), añade un <strong>conector personalizado</strong> llamado <em>Search Console</em> y pon esta dirección:</p>
 <p class="copy">${esc(origin)}/mcp</p>
 <p>Al pulsar <strong>Conectar</strong>, entra con tu cuenta de Google y añade las demás que quieras.${admin ? ' Desde esa misma página puedes compartir el conector con otras personas.' : ''}</p>
 ${admin ? `<p class="muted">Administración: ${esc(admin)}.</p>` : ''}`,
