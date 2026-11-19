@@ -126,6 +126,10 @@ async function run() {
   let wiz = await res.text();
   assert.match(wiz, /Configurar el conector/);
   assert.ok(wiz.includes(`${ORIGIN}/callback`));
+  assert.ok(wiz.includes(`${ORIGIN}/privacidad`), 'el asistente da el enlace de la política de privacidad');
+  res = await fetch(`${ORIGIN}/privacidad`);
+  assert.equal(res.status, 200);
+  assert.match(await res.text(), /solo lectura/);
   res = await browser(`${ORIGIN}/setup`, { method: 'POST', body: new URLSearchParams({ client_id: 'nada', client_secret: 'test-secret' }) });
   assert.equal(res.status, 400);
   assert.match(await res.text(), /no parece correcto/);

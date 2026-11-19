@@ -46,8 +46,8 @@ function providerFor(origin: string): OAuthProvider<Env> {
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
-    // Página de inicio y asistente de configuración (sin OAuth de Claude).
-    if (url.pathname === '/' || url.pathname === '/setup' || isSetupCallback(url)) return handleSetup(request, env);
+    // Página de inicio, asistente de configuración y política de privacidad (sin OAuth de Claude).
+    if (url.pathname === '/' || url.pathname === '/setup' || url.pathname === '/privacidad' || isSetupCallback(url)) return handleSetup(request, env);
     const configured = withConfig(env, await loadConfig(env), url.origin);
     return providerFor(url.origin).fetch(request, configured, ctx);
   },

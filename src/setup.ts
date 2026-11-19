@@ -14,6 +14,33 @@ export function isSetupCallback(url: URL): boolean {
   return url.pathname === '/callback' && (url.searchParams.get('state') || '').startsWith(STATE_PREFIX);
 }
 
+/** Dominio que hay que autorizar en Google: el dominio registrable (con workers.dev, el subdominio de la cuenta). */
+export function authorizedDomain(host: string): string {
+  const parts = host.split('.');
+  return parts.slice(host.endsWith('.workers.dev') ? -3 : -2).join('.');
+}
+
+function privacyPage(origin: string, admin?: string): Response {
+  return page(
+    'Política de privacidad',
+    `<h1>Política de privacidad</h1>
+<p class="muted">Conector de Google Search Console para Claude publicado en ${esc(origin)}.</p>
+<h2>Qué datos usa</h2>
+<p>Cuando conectas el conector, inicias sesión con tus cuentas de Google y das permiso de <strong>solo lectura</strong> a Google Search Console (<em>webmasters.readonly</em>), además de tu dirección de correo para identificarte.</p>
+<p>Con ese permiso, el conector lee los datos de Search Console de tus propiedades (rendimiento en búsqueda, inspección de URL y sitemaps) <strong>solo cuando tú se lo pides</strong> a Claude, y se los entrega a tu sesión de Claude.</p>
+<h2>Qué se guarda</h2>
+<ul class="sub"><li>Tu correo y un identificador de cada cuenta de Google que conectes.</li>
+<li>El token de acceso de Google de cada cuenta, cifrado.</li>
+<li>Durante 10 minutos, la lista de tus propiedades, para responder más rápido.</li></ul>
+<p>No se guardan los datos de rendimiento ni las consultas: se piden a Google en el momento y no se almacenan. No se venden ni se ceden a terceros, ni se usan para publicidad.</p>
+<p>Todo se guarda en la cuenta de Cloudflare de quien administra este conector. Cada persona solo puede ver sus propias cuentas y propiedades.</p>
+<h2>Cómo borrar tus datos</h2>
+<p>Desconecta el conector en Claude y vuelve a conectarlo: en la página de conexión puedes <strong>quitar</strong> cada cuenta, lo que borra sus datos y revoca el acceso en Google. También puedes retirar el acceso cuando quieras en <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">myaccount.google.com/permissions</a>.</p>
+<p>El uso de los datos recibidos de las API de Google cumple la <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener">política de datos de usuario de los servicios de API de Google</a>, incluidos los requisitos de uso limitado.</p>
+${admin ? `<h2>Contacto</h2><p>${esc(admin)}</p>` : ''}`,
+  );
+}
+
 const isComplete = (c: Config | null) => Boolean(c && (c.fromEnv || c.admin));
 
 function cookieValue(request: Request, name: string): string | null {
@@ -32,7 +59,8 @@ ${intro ? `<p class="note">${esc(intro)}</p>` : ''}
 <p>Para usarlo, abre <a href="https://claude.ai/customize/connectors" target="_blank" rel="noopener">los conectores de Claude</a> (<strong>Personalizar > Conectores</strong>), añade un <strong>conector personalizado</strong> llamado <em>Search Console</em> y pon esta dirección:</p>
 <p class="copy">${esc(origin)}/mcp</p>
 <p>Al pulsar <strong>Conectar</strong>, entra con tu cuenta de Google y añade las demás que quieras.${admin ? ' Desde esa misma página puedes compartir el conector con otras personas.' : ''}</p>
-${admin ? `<p class="muted">Administración: ${esc(admin)}.</p>` : ''}`,
+${admin ? `<p class="muted">Administración: ${esc(admin)}.</p>` : ''}
+<p class="muted"><a href="/privacidad">Política de privacidad</a></p>`,
   );
 }
 
@@ -47,7 +75,12 @@ ${error ? `<p class="note warn">${esc(error)}</p>` : ''}
 <ol class="steps">
 ${step(1, `<a href="https://console.cloud.google.com/apis/library/searchconsole.googleapis.com" target="_blank" rel="noopener">Abre la API de Search Console</a> y pulsa <strong>Habilitar</strong>. Si Google te pide antes un proyecto, crea uno con cualquier nombre (por ejemplo, <em>search-console-claude</em>) y vuelve a este enlace.`)}
 ${step(2, `<a href="https://console.cloud.google.com/auth/overview" target="_blank" rel="noopener">Abre Google Auth Platform</a> y pulsa <strong>Comenzar</strong>. Se abre un formulario de cuatro partes:<ul class="sub"><li><strong>Información de la app</strong>: nombre <em>Search Console para Claude</em> y, como correo de asistencia, el tuyo. <strong>Siguiente</strong>.</li><li><strong>Público</strong>: <strong>Usuarios externos</strong>. <strong>Siguiente</strong>.</li><li><strong>Información de contacto</strong>: tu correo. <strong>Siguiente</strong>.</li><li><strong>Finalizar</strong>: acepta la política de datos de usuario, <strong>Continuar</strong> y <strong>Crear</strong>.</li></ul>`)}
-${step(3, `<a href="https://console.cloud.google.com/auth/branding" target="_blank" rel="noopener">Abre Desarrollo de la marca</a> y comprueba que llevan tu correo los campos <strong>Correo de asistencia al usuario</strong> y, abajo del todo, <strong>Información de contacto del desarrollador</strong>. Deja vacíos el logotipo, los enlaces y los dominios. Pulsa <strong>Guardar</strong>. Sin esto, Google no deja publicar la app.`)}
+${step(3, `<a href="https://console.cloud.google.com/auth/branding" target="_blank" rel="noopener">Abre Desarrollo de la marca</a>. Google no deja publicar la app sin estos datos. Rellena:<ul class="sub">
+<li><strong>Página principal de la aplicación</strong>:<p class="copy">${esc(origin)}</p></li>
+<li><strong>Vínculo a la Política de Privacidad</strong>:<p class="copy">${esc(origin)}/privacidad</p></li>
+<li><strong>Dominios autorizados</strong>: pulsa <strong>Agregar un dominio</strong> y pega:<p class="copy">${esc(authorizedDomain(new URL(origin).hostname))}</p></li>
+<li>Comprueba que llevan tu correo el <strong>Correo de asistencia al usuario</strong> y, abajo del todo, la <strong>Información de contacto del desarrollador</strong>. Deja vacíos el logotipo y las condiciones del servicio.</li></ul>
+Pulsa <strong>Guardar</strong>.`)}
 ${step(4, `<a href="https://console.cloud.google.com/auth/audience" target="_blank" rel="noopener">Abre Público</a>, pulsa <strong>Publicar app</strong> y confirma. El estado debe pasar de <em>Prueba</em> a <em>En producción</em>. No te lo saltes: en <em>Prueba</em> Google solo deja entrar a usuarios de prueba y corta el acceso a los 7 días.`)}
 ${step(5, `<a href="https://console.cloud.google.com/auth/clients/create" target="_blank" rel="noopener">Crea el cliente</a>: en <strong>Tipo de aplicación</strong> elige <strong>Aplicación web</strong> (el nombre da igual). En <strong>URIs de redireccionamiento autorizados</strong> añade una URI y pega exactamente esto:<p class="copy">${esc(redirect)}</p>Pulsa <strong>Crear</strong>. Google te mostrará el <strong>ID de cliente</strong> y el <strong>Secreto del cliente</strong>: déjalos a la vista, son para el paso siguiente.`)}
 ${step(6, `Copia el <strong>ID de cliente</strong> y el <strong>Secreto del cliente</strong> y pégalos aquí:
@@ -67,6 +100,10 @@ export async function handleSetup(request: Request, rawEnv: Env): Promise<Respon
   const config = await loadConfig(rawEnv);
 
   try {
+    if (url.pathname === '/privacidad' && request.method === 'GET') {
+      return privacyPage(url.origin, config?.fromEnv ? undefined : config?.admin);
+    }
+
     if (url.pathname === '/' && request.method === 'GET') {
       if (isComplete(config)) return readyPage(url.origin, config?.fromEnv ? undefined : config?.admin);
       return wizard(url.origin);
