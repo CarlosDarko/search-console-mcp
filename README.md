@@ -22,12 +22,14 @@ Son tres pasos, y no hay que configurar nada a mano en Cloudflare.
 
 ### 1. Publicarlo en Cloudflare (2 minutos)
 
-1. Crea una cuenta gratuita en [dash.cloudflare.com](https://dash.cloudflare.com).
-2. Ve a **Compute (Workers) > Crear > Importar un repositorio**, conecta GitHub y elige este repositorio.
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/CarlosDarko/search-console-mcp)
+
+1. Pulsa el botón **Deploy to Cloudflare**. Si no tienes cuenta en Cloudflare, créala, es gratuita.
+2. Conecta tu cuenta de GitHub o GitLab (también vale una gratuita). Cloudflare crea ahí una copia de este repositorio y la publica, con su espacio de datos incluido.
 3. Deja todo como viene y pulsa **Crear y desplegar**.
 4. Al terminar, abre la dirección que te da, del tipo `https://search-console-mcp.TU-USUARIO.workers.dev`.
 
-A partir de ahí, cada cambio que llegue al repositorio se publica solo.
+Cada cambio que llegue a tu copia del repositorio se publica solo.
 
 ### 2. El asistente (5 minutos)
 
@@ -52,6 +54,14 @@ El conector aparece en todos los dispositivos donde uses esa cuenta de Claude.
 En Claude, desconecta el conector y vuelve a conectarlo. En la página de conexión verás tus cuentas, con botones para quitarlas y para añadir otras. Las que ya estaban se conservan.
 
 ## Compartirlo con otras personas
+
+Hay dos formas.
+
+### Que cada persona tenga su propio conector (recomendado si son muchas)
+
+Pásale el enlace de este repositorio y que siga [la puesta en marcha](#puesta-en-marcha-una-sola-vez) desde el botón **Deploy to Cloudflare**. Tendrá su propio Cloudflare y su propio cliente de Google, así que sus datos son suyos y no le afectan el aviso de 'app no verificada' ni el límite de 100 usuarios.
+
+### Que usen tu conector
 
 La persona administradora ve en la página de conexión el apartado **Compartir el conector**. Ahí escribe quién puede usarlo, separado por comas:
 
